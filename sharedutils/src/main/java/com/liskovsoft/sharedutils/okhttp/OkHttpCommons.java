@@ -282,8 +282,8 @@ final class OkHttpCommons {
                     forceGoogleDns(okBuilder);
                     break;
             }
-        }
         //setupProxy(okBuilder); // proxy configured in system props
+        setupProxy(okBuilder);
         setupConnectionFix(okBuilder);
         setupConnectionParams(okBuilder);
         configureToIgnoreCertificate(okBuilder);
@@ -366,7 +366,14 @@ final class OkHttpCommons {
     }
 
     private static void setupProxy(OkHttpClient.Builder builder) {
-        setupProxy(builder, "socksProxyHost", "socksProxyPort", "socksProxyUser", "socksProxyPassword", Proxy.Type.SOCKS);
+        String socksHost = System.getProperty("socksProxyHost");
+        String socksPort = System.getProperty("socksProxyPort");
+
+        if (socksHost != null && socksPort != null) {
+            builder.proxy(InetSocketAddress.createUnresolved(socksHost, Helpers.parseInt(socksPort)));
+            return;
+        }
+
         setupProxy(builder, "https.proxyHost", "https.proxyPort", "https.proxyUser", "https.proxyPassword", Proxy.Type.HTTP);
         setupProxy(builder, "http.proxyHost", "http.proxyPort", "http.proxyUser", "http.proxyPassword", Proxy.Type.HTTP);
     }
@@ -375,20 +382,9 @@ final class OkHttpCommons {
     private static void setupProxy(Builder builder, String proxyHost, String proxyPort, String proxyUser, String proxyPassword, Proxy.Type proxyType) {
         String host = System.getProperty(proxyHost);
         String port = System.getProperty(proxyPort);
-        String user = System.getProperty(proxyUser);
-        String password = System.getProperty(proxyPassword);
 
         if (host == null || port == null) {
             return;
-        }
-
-        if (user != null && password != null) {
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(user, password.toCharArray());
-                }
-            });
         }
 
         builder.proxy(new Proxy(proxyType, new InetSocketAddress(host, Helpers.parseInt(port))));
