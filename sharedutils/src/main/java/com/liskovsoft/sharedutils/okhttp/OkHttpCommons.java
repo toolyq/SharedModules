@@ -371,7 +371,7 @@ final class OkHttpCommons {
         String socksPort = System.getProperty("socksProxyPort");
 
         if (socksHost != null && socksPort != null) {
-            builder.proxy(InetSocketAddress.createUnresolved(socksHost, Helpers.parseInt(socksPort)));
+            builder.proxy(new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved(socksHost, Helpers.parseInt(socksPort))));
             return;
         }
 
