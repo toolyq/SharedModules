@@ -282,6 +282,7 @@ final class OkHttpCommons {
                     forceGoogleDns(okBuilder);
                     break;
             }
+        }
         //setupProxy(okBuilder); // proxy configured in system props
         setupProxy(okBuilder);
         setupConnectionFix(okBuilder);
